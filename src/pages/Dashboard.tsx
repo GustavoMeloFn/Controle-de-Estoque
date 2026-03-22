@@ -98,8 +98,8 @@ export default function Dashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Produto</TableHead>
                     <TableHead className="hidden sm:table-cell">Imagem</TableHead>
+                    <TableHead>Produto</TableHead>
                     <TableHead className="hidden sm:table-cell">SKU</TableHead>
                     <TableHead className="hidden md:table-cell">Categoria</TableHead>
                     <TableHead className="text-right">Qtd</TableHead>
@@ -115,10 +115,10 @@ export default function Dashboard() {
                       className="group"
                       style={{ animation: `fade-in 0.3s ease-out ${i * 40}ms forwards`, opacity: 0 }}
                     >
-                      <TableCell className="font-medium">{p.name}</TableCell>
                       <TableCell className="hidden sm:table-cell">
                         {p.image ? <img src={`http://localhost:3000${p.image}`} alt={p.name} className="w-10 h-10 object-cover rounded" /> : '—'}
                       </TableCell>
+                      <TableCell className="font-medium">{p.name}</TableCell>
                       <TableCell className="hidden sm:table-cell text-muted-foreground">{p.sku || '—'}</TableCell>
                       <TableCell className="hidden md:table-cell text-muted-foreground">{p.category || '—'}</TableCell>
                       <TableCell className="text-right tabular-nums font-semibold">{p.quantity} {p.unit}</TableCell>

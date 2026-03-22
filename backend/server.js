@@ -22,6 +22,15 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadDir));
 
+const deleteImageFile = (imageUrl) => {
+  if (imageUrl) {
+    const filePath = path.join(uploadDir, path.basename(imageUrl));
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
@@ -90,12 +99,27 @@ app.post('/api/products', (req, res) => {
 
 app.put('/api/products/:id', (req, res) => {
   const updates = req.body;
+  const productId = req.params.id;
   const keys = Object.keys(updates).filter(k => k !== 'id');
-  if (keys.length > 0) db.prepare(`UPDATE products SET ${keys.map(k => `${k} = ?`).join(', ')}, updated_at = ? WHERE id = ?`).run(...keys.map(k => updates[k]), new Date().toISOString(), req.params.id);
+  if (keys.length > 0) {
+    // Get current product to check old image
+    const currentProduct = db.prepare('SELECT * FROM products WHERE id = ?').get(productId);
+    if (currentProduct && updates.image && currentProduct.image !== updates.image) {
+      deleteImageFile(currentProduct.image);
+    }
+    db.prepare(`UPDATE products SET ${keys.map(k => `${k} = ?`).join(', ')}, updated_at = ? WHERE id = ?`).run(...keys.map(k => updates[k]), new Date().toISOString(), productId);
+  }
   res.json({ success: true });
 });
 
-app.delete('/api/products/:id', (req, res) => { res.json({ success: db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id).changes > 0 }); });
+app.delete('/api/products/:id', (req, res) => {
+  const productId = req.params.id;
+  const product = db.prepare('SELECT * FROM products WHERE id = ?').get(productId);
+  if (product && product.image) {
+    deleteImageFile(product.image);
+  }
+  res.json({ success: db.prepare('DELETE FROM products WHERE id = ?').run(productId).changes > 0 });
+});
 
 app.post('/api/upload', upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada.' });
