@@ -4,10 +4,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProducts, Product } from '@/hooks/useProducts';
 import ProductFormDialog from '@/components/ProductFormDialog';
 import StockAdjustDialog from '@/components/StockAdjustDialog';
+import DashboardStats from '@/components/DashboardStats';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Package, Plus, Sun, Moon, LogOut, Pencil, Loader2,
+  Package, Plus, Sun, Moon, LogOut, Pencil, Loader2, Search, Trash,
 } from 'lucide-react';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -64,7 +65,19 @@ export default function Dashboard() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6 space-y-6">
+        {/* Report e dashboards referente ao estoque do usuário atual */}
+        {/* <DashboardStats products={products} /> */}
+
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+          <div className="relative w-full sm:w-72">
+            {/* <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar produto..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-9"
+            /> */}
+          </div>
           <Button
             onClick={() => { setProductInEdit(null); setOpenProduct(true); }}
             className="active:scale-[0.97] transition-transform"
@@ -126,6 +139,26 @@ export default function Dashboard() {
                             title="Editar"
                           >
                             <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost" size="icon"
+                            className="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                            onClick={() => { setSelectedForStock(product); setStockOpen(true); }}
+                            title="Ajustar Estoque"
+                          >
+                            <Package className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost" size="icon"
+                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              if (confirm('Tem certeza que deseja remover este produto?')) {
+                                deleteProduct.mutate(product.id);
+                              }
+                            }}
+                            title="Remover"
+                          >
+                            <Trash className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </TableCell>
